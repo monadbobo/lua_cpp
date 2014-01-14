@@ -4,6 +4,9 @@
 #include <cassert>
 #include "llex.h"
 
+
+namespace lua {
+
 enum RESERVED {
   tok_eof = -1, tok_and ,tok_break,
   tok_do, tok_else, tok_elseif, tok_end, tok_false, tok_for, tok_function,
@@ -13,16 +16,6 @@ enum RESERVED {
   tok_concat, tok_dots, tok_eq, tok_ge, tok_le, tok_ne, tok_number,
   tok_name, tok_string, tok_eos
 };
-
-
-int Stream::next() {
-    if (n_-- <= 0) {
-        reader_();
-    }
-
-    return static_cast<unsigned char> (*p_++);
-}
-
 
 int LexState::skip_sep () {
   int count = 0;
@@ -56,6 +49,7 @@ void LexState::read_numeral () {
 }
 
 int LexState::llex() {
+    save_and_next();
     for (;;) {
         switch (current_) {
         case '\n':
@@ -149,4 +143,6 @@ int LexState::llex() {
         }
         }
     }
+}
+
 }
