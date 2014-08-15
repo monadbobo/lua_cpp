@@ -9,5 +9,5 @@ int main()
 
     auto lexstate = std::make_unique<lua::LexState> (stream);
 
-    std::cout << lexstate->llex() << std::endl;
+    std::cout << static_cast<int>(lexstate->llex()) << std::endl;
 }

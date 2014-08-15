@@ -7,7 +7,7 @@
 
 namespace lua {
 
-enum RESERVED {
+enum class Reserved {
   tok_eof = -1, tok_and ,tok_break,
   tok_do, tok_else, tok_elseif, tok_end, tok_false, tok_for, tok_function,
   tok_if, tok_in, tok_local, tok_nil, tok_not, tok_or, tok_repeat,
@@ -48,7 +48,7 @@ void LexState::read_numeral () {
   }
 }
 
-int LexState::llex() {
+Reserved LexState::llex() {
     save_and_next();
     for (;;) {
         switch (current_) {
@@ -59,7 +59,7 @@ int LexState::llex() {
         }
         case '-': {
             save_and_next();
-            if (current_ != '-') return '-';
+            if (current_ != '-') return static_cast<Reserved>('-');
             /* else is a comment */
             save_and_next();
             if (current_ == '[') {
@@ -74,51 +74,51 @@ int LexState::llex() {
             int sep = skip_sep();
             if (sep >= 0) {
                 // read_long_string(ls, seminfo, sep);
-                return tok_string;
+                return Reserved::tok_string;
             }
-            else if (sep == -1) return '[';
+            else if (sep == -1) return static_cast<Reserved>('[');
             else error("invalid long string delimiter");
         }
         case '=': {
             save_and_next();
-            if (current_ != '=') return '=';
-            else { save_and_next(); return tok_eq; }
+            if (current_ != '=') return static_cast<Reserved>('=');
+            else { save_and_next(); return Reserved::tok_eq; }
         }
         case '<': {
             save_and_next();
-            if (current_ != '=') return '<';
-            else { save_and_next(); return tok_le; }
+            if (current_ != '=') return static_cast<Reserved>('<');
+            else { save_and_next(); return Reserved::tok_le; }
         }
         case '>': {
             save_and_next();
-            if (current_ != '=') return '>';
-            else { save_and_next(); return tok_ge; }
+            if (current_ != '=') return static_cast<Reserved>('>');
+            else { save_and_next(); return Reserved::tok_ge; }
         }
         case '~': {
             save_and_next();
-            if (current_ != '=') return '~';
-            else { save_and_next(); return tok_ne; }
+            if (current_ != '=') return static_cast<Reserved>('~');
+            else { save_and_next(); return Reserved::tok_ne; }
         }
         case '"':
         case '\'': {
             // read_string(ls, current_, seminfo);
-            return tok_string;
+            return Reserved::tok_string;
         }
         case '.': {
             save_and_next();
             if (check_next(".")) {
                 if (check_next("."))
-                    return tok_dots;   /* ... */
-                else return tok_concat;   /* .. */
+                    return Reserved::tok_dots;   /* ... */
+                else return Reserved::tok_concat;   /* .. */
             }
-            else if (!isdigit(current_)) return '.';
+            else if (!isdigit(current_)) return static_cast<Reserved>('.');
             else {
                 read_numeral();
-                return tok_number;
+                return Reserved::tok_number;
             }
         }
         case -1: {
-            return tok_eos;
+            return Reserved::tok_eos;
         }
         default: {
             if (isspace(current_)) {
@@ -128,17 +128,16 @@ int LexState::llex() {
             }
             else if (isdigit(current_)) {
                 read_numeral();
-                return tok_number;
+                return Reserved::tok_number;
             }
             else if (isalpha(current_) || current_ == '_') {
                 // need add string
-
-                return tok_name;
+                return Reserved::tok_name;
             }
             else {
                 int c = current_;
                 save_and_next();
-                return c;  /* single-char tokens (+ - / ...) */
+                return static_cast<Reserved>(c);  /* single-char tokens (+ - / ...) */
             }
         }
         }

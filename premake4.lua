@@ -9,7 +9,7 @@ solution  "lua_cpp"
     configuration { "Debug*" }
       defines { "_DEBUG", "DEBUG" }
       flags   { "Symbols" }
- 
+
     configuration { "Release*" }
       defines { "NDEBUG" }
       flags   { "Optimize" }
@@ -17,7 +17,7 @@ solution  "lua_cpp"
   project "lua_cpp_test"
     language "C++"
     kind     "ConsoleApp"
-    files {"test/*.cpp"}
+    files {"src/**.h test/*.cpp"}
 
     buildoptions { "-std=c++1y" }
     links {"lua_cpp"}
@@ -25,7 +25,7 @@ solution  "lua_cpp"
     configuration { "Debug*" }
       defines { "_DEBUG", "DEBUG" }
       flags   { "Symbols" }
- 
+
     configuration { "Release*" }
       defines { "NDEBUG" }
       flags   { "Optimize" }

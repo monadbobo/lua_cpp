@@ -1,7 +1,12 @@
+#ifndef _LUA_LLEX_INCLUDE_H_
+#define _LUA_LLEX_INCLUDE_H_
+
 #include <string>
 #include "stream.h"
 
 namespace lua {
+
+enum class Reserved;
 
 typedef union {
     double r;
@@ -18,8 +23,7 @@ public:
     LexState(std::unique_ptr <Stream<BuffStream>>& s)
         :current_{0}, linenumber_{0}, io_{std::move(s)}, buff_{},t_{nullptr} {}
 
-    int llex();
-
+    Reserved llex();
 private:
     int                       current_;
     int                       linenumber_;
@@ -53,3 +57,5 @@ private:
 };
 
 } /* namespace lua */
+
+#endif      /* _LUA_LLEX_INCLUDE_H_ */
