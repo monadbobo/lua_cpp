@@ -2,59 +2,68 @@
 #define _LUA_LLEX_INCLUDE_H_
 
 #include <string>
-#include "stream.h"
+#include <fstream>
+#include "token.h"
 
 namespace lua {
 
-enum class Reserved;
+  class LexState {
 
-typedef union {
-    double r;
-    std::string ts;
-} SemInfo;  /* semantics information */
+ public:
+    LexState(const std::string& fileName);
 
-typedef struct Token {
-    int token;
-    SemInfo seminfo;
-} Token;
+    Token llex();
 
-class LexState {
-public:
-    LexState(std::unique_ptr <Stream<BuffStream>>& s)
-        :current_{0}, linenumber_{0}, io_{std::move(s)}, buff_{},t_{nullptr} {}
-
-    Reserved llex();
-private:
-    int                       current_;
-    int                       linenumber_;
-    int                       lastline_;
-    Token                    *t_;
-    std::string               buff_;
-    std::unique_ptr <Stream<BuffStream>>  io_;
+    enum class State
+    {
+      NONE,
+      END_OF_FILE,
+      IDENTIFIER,
+      NUMBER,
+      STRING,
+      OPERATION
+     };
+ private:
+    char            current_;
+    int             linenumber_;
+    int             colum_nnumber_;
+    int             lastline_;
+    Token           token_;
+    State           state_;
+    std::string     buffer_;
+    std::string    fileName_;
+    std::ifstream   input_;
 
     void save();
-    inline void save_and_next() {
-        current_ = io_->next();
-        buff_ += (char) current_;
-    }
+
+    void save_and_next();
 
     inline bool check_next (const char *set) {
-        if (!strchr(set, current_)) {
-            return false;
-        }
-        save_and_next();
-        return true;
+      if (!strchr(set, current_)) {
+        return false;
+      }
+      save_and_next();
+      return true;
     }
 
-    bool curr_is_new_line() {
-        return current_ == '\n' || current_ == '\r';
+    inline bool curr_is_new_line() {
+      return current_ == '\n' || current_ == '\r';
     }
 
     void read_numeral ();
     int skip_sep ();
-    void error(const char *Str);
+    void error(const std::string& msg);
 
-};
+    void            filter_comment_space();
+    void            handleNONEState();
+    void            handleEOFState();
+    void            handleIdentifierState();
+    void            handleNumberState();
+    void            handleStringState();
+    void            handleOperationState();
+    void  handleComment();
+
+  };
 
 } /* namespace lua */
 
